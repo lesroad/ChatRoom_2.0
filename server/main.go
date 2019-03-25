@@ -2,7 +2,6 @@ package main
 
 import (
 	"fmt"
-	"io/ioutil"
 	"net"
 	"os"
 	"strconv"
@@ -91,43 +90,15 @@ func withClient(client *Client) {
 				name := strs[1]
 				content := str[len(strs[0])+len(strs[1]):]
 
-				fmt.Println(client.name + "上传文件：" + name)
-				//存储到指定地址
-				fpath := path + "file/" + name
-				err := ioutil.WriteFile(fpath, []byte(content), 0777)
-				if err != nil {
-					fmt.Println("err = ", err)
-				}
-
-				//反馈结果
-				SendMsg2Client("系统消息：文件上传成功！", client)
-
-				//写入日志
-				writeMsgToLog("上传文件"+name, client)
+				//写入文件
+				uploadFile(name, content, client)
 
 			case "download":
 				//download#文件名#地址
 				name := strs[1]
 				clipath := strs[2]
 
-				_, err := os.OpenFile(path+"file/"+name, os.O_RDONLY, 0777)
-				if err != nil {
-					SendMsg2Client("系统消息：没有此文件！", client)
-					break
-				}
-
-				//查找到此文件
-				files, _ := ioutil.ReadFile(path + "file/" + name)
-
-				//写入文件
-				err = ioutil.WriteFile(clipath+name, files, 0777)
-				sHandleError(err, "writefile error:")
-
-				//反馈结果
-				SendMsg2Client("系统消息：文件下载成功！", client)
-
-				//写入日志
-				writeMsgToLog("下载文件"+name, client)
+				downloadFile(name, clipath, client)
 
 			case "all":
 				//向所有人传达消息
